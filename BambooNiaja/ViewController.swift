@@ -8,10 +8,15 @@
 
 import UIKit
 import SnapKit
+import SpriteKit
+import AVFoundation
 
 class ViewController: UIViewController {
 
     let gameConfig = GameConfig()
+    let StoreScoreName = "com.stickHero.score"
+    var musicPlayer:AVAudioPlayer!
+    var scene:StickHeroGameScene!
     
     lazy var settingView: UIView = {
         let bgView = UIView()
@@ -138,14 +143,21 @@ class ViewController: UIViewController {
         return bgView
     }()
 
-    override func viewWillAppear(_ animated: Bool) {
+    override func viewDidLoad() {
+        super.viewDidLoad()
         setMainBgImage()
     }
 
-    override func viewDidLoad() {
-        super.viewDidLoad()
+    override func viewWillAppear(_ animated: Bool) {
+        super.viewWillAppear(animated)
+        
+        if gameConfig.isGameMusic == true {
+            musicPlayer = setupAudioPlayerWithFile("bg_country", type: "mp3")
+            musicPlayer.numberOfLoops = -1
+            musicPlayer.play()
+        }
     }
-
+    
     override func didReceiveMemoryWarning() {
         super.didReceiveMemoryWarning()
         // Dispose of any resources that can be recreated.
@@ -163,8 +175,16 @@ class ViewController: UIViewController {
         }
 
         if sender.tag == 13 {
-            let gameViewController = GameViewController()
-            self.present(gameViewController, animated: true, completion: nil)
+            if iPhoneNormalWidth {
+                scene = StickHeroGameScene(size:CGSize(width: DefinedScreenWidth, height: DefinedScreenHeight))
+            } else if iPhoneLargeWidth {
+                scene = StickHeroGameScene(size:CGSize(width: DefinedScreenLargeIphoneWidth, height: DefinedScreenHeight))
+            }
+            self.view = SKView()
+            let skView = self.view as! SKView
+            skView.ignoresSiblingOrder = true
+            scene.scaleMode = .aspectFill
+            skView.presentScene(scene)
         }
         
         if sender.tag == 31 {
@@ -190,6 +210,13 @@ class ViewController: UIViewController {
     }
     
     func setMainBgImage() {
+        var highScore = Int()
+        if UserDefaults.standard.integer(forKey: StoreScoreName) > 0 {
+            highScore = UserDefaults.standard.integer(forKey: StoreScoreName)
+        } else {
+            highScore = 0
+        }
+        
         let bgImageView = UIImageView(image:#imageLiteral(resourceName: "首页"))
         view.addSubview(bgImageView)
         bgImageView.snp.makeConstraints({ (make) in
@@ -206,13 +233,23 @@ class ViewController: UIViewController {
             make.right.equalTo(bgImageView).offset(-30)
         })
         
+        let highScoreLabel = UILabel()
+        highScoreLabel.textColor = UIColor.red
+        highScoreLabel.text = "最高分:  \(highScore)"
+        highScoreLabel.font = UIFont.systemFont(ofSize: 21)
+        view.addSubview(highScoreLabel)
+        highScoreLabel.snp.makeConstraints({ (make) in
+            make.center.equalTo(bgImageView)
+        })
+        
         let imformationBtn = UIButton()
         imformationBtn.setImage(#imageLiteral(resourceName: "玩法说明按钮"), for: .normal)
         imformationBtn.tag = 10
         imformationBtn.addTarget(self, action: #selector(buttonClick(_:)), for: .touchUpInside)
         view.addSubview(imformationBtn)
         imformationBtn.snp.makeConstraints({ (make) in
-            make.center.equalTo(bgImageView)
+            make.top.equalTo(highScoreLabel.snp.bottom).offset(20)
+            make.centerX.equalTo(bgImageView)
         })
         
         let playBtn = UIButton()
@@ -233,12 +270,37 @@ class ViewController: UIViewController {
             make.left.right.top.bottom.equalTo(view)
         }
     }
-
+    
     func openSetting() {
         view.addSubview(settingView)
         settingView.snp.makeConstraints { (make) in
             make.left.right.top.bottom.equalTo(view)
         }
+    }
+    
+    func setupAudioPlayerWithFile(_ file:NSString, type:NSString) -> AVAudioPlayer  {
+        let url = Bundle.main.url(forResource: file as String, withExtension: type as String)
+        var audioPlayer:AVAudioPlayer?
+        
+        do {
+            try audioPlayer = AVAudioPlayer(contentsOf: url!)
+        } catch {
+            print("NO AUDIO PLAYER")
+        }
+        
+        return audioPlayer!
+    }
+    
+    override var shouldAutorotate : Bool {
+        return true
+    }
+    
+    override var supportedInterfaceOrientations : UIInterfaceOrientationMask {
+        return .portrait
+    }
+    
+    override var prefersStatusBarHidden : Bool {
+        return true
     }
 
 }

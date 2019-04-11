@@ -8,9 +8,28 @@
 
 import Foundation
 import CoreGraphics
+import UIKit
 
+let DefinedScreenLargeIphoneWidth:CGFloat = 1695
 let DefinedScreenWidth:CGFloat = 1536
 let DefinedScreenHeight:CGFloat = 2048
+let screenWidth:CGFloat = UIScreen.main.bounds.width
+
+
+var iPhoneNormalWidth:Bool {
+    if screenWidth == CGFloat(375.0){
+        return true
+    } else {
+        return false
+    }
+}
+var iPhoneLargeWidth:Bool {
+    if screenWidth == CGFloat(414.0){
+        return true
+    } else {
+        return false
+    }
+}
 
 enum StickHeroGameSceneChildName : String {
     case HeroName = "hero"
@@ -22,6 +41,7 @@ enum StickHeroGameSceneChildName : String {
     case PerfectName = "perfect"
     case GameOverLayerName = "over"
     case RetryButtonName = "retry"
+    case GoToMainPage = "goToMainPage"
     case HighScoreName = "highscore"
 }
 

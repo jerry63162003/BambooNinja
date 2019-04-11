@@ -7,8 +7,9 @@
 	objects = {
 
 /* Begin PBXBuildFile section */
+		5322AD17225F7F260063D6BF /* button_retry_up.png in Resources */ = {isa = PBXBuildFile; fileRef = 5322AD16225F7F260063D6BF /* button_retry_up.png */; };
+		5322AD19225F7F840063D6BF /* again.png in Resources */ = {isa = PBXBuildFile; fileRef = 5322AD18225F7F840063D6BF /* again.png */; };
 		53B70913225C33AA00D22F69 /* AppDelegate.swift in Sources */ = {isa = PBXBuildFile; fileRef = 53B70912225C33AA00D22F69 /* AppDelegate.swift */; };
-		53B70915225C33AB00D22F69 /* GameViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 53B70914225C33AB00D22F69 /* GameViewController.swift */; };
 		53B70918225C33AB00D22F69 /* Main.storyboard in Resources */ = {isa = PBXBuildFile; fileRef = 53B70916225C33AB00D22F69 /* Main.storyboard */; };
 		53B7091A225C33AC00D22F69 /* Assets.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = 53B70919225C33AC00D22F69 /* Assets.xcassets */; };
 		53B7091D225C33AC00D22F69 /* LaunchScreen.storyboard in Resources */ = {isa = PBXBuildFile; fileRef = 53B7091B225C33AC00D22F69 /* LaunchScreen.storyboard */; };
@@ -54,9 +55,10 @@
 
 /* Begin PBXFileReference section */
 		1B4D224C4D128A98DE5CABE8 /* Pods-BambooNiaja.debug.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-BambooNiaja.debug.xcconfig"; path = "Pods/Target Support Files/Pods-BambooNiaja/Pods-BambooNiaja.debug.xcconfig"; sourceTree = "<group>"; };
+		5322AD16225F7F260063D6BF /* button_retry_up.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = button_retry_up.png; sourceTree = "<group>"; };
+		5322AD18225F7F840063D6BF /* again.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = again.png; sourceTree = "<group>"; };
 		53B7090F225C33AA00D22F69 /* BambooNiaja.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = BambooNiaja.app; sourceTree = BUILT_PRODUCTS_DIR; };
 		53B70912225C33AA00D22F69 /* AppDelegate.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AppDelegate.swift; sourceTree = "<group>"; };
-		53B70914225C33AB00D22F69 /* GameViewController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = GameViewController.swift; sourceTree = "<group>"; };
 		53B70917225C33AB00D22F69 /* Base */ = {isa = PBXFileReference; lastKnownFileType = file.storyboard; name = Base; path = Base.lproj/Main.storyboard; sourceTree = "<group>"; };
 		53B70919225C33AC00D22F69 /* Assets.xcassets */ = {isa = PBXFileReference; lastKnownFileType = folder.assetcatalog; path = Assets.xcassets; sourceTree = "<group>"; };
 		53B7091C225C33AC00D22F69 /* Base */ = {isa = PBXFileReference; lastKnownFileType = file.storyboard; name = Base; path = Base.lproj/LaunchScreen.storyboard; sourceTree = "<group>"; };
@@ -154,8 +156,6 @@
 				53B70968225C496C00D22F69 /* Scene */,
 				53B70912225C33AA00D22F69 /* AppDelegate.swift */,
 				53B7096F225C4B6600D22F69 /* ViewController.swift */,
-				53B70914225C33AB00D22F69 /* GameViewController.swift */,
-				53B70985225C7F9900D22F69 /* GameConfig.swift */,
 				53B70916225C33AB00D22F69 /* Main.storyboard */,
 				53B70919225C33AC00D22F69 /* Assets.xcassets */,
 				53B7091B225C33AC00D22F69 /* LaunchScreen.storyboard */,
@@ -185,6 +185,8 @@
 		53B70940225C433100D22F69 /* Images */ = {
 			isa = PBXGroup;
 			children = (
+				5322AD16225F7F260063D6BF /* button_retry_up.png */,
+				5322AD18225F7F840063D6BF /* again.png */,
 				53B70987225C856A00D22F69 /* stick_background.png */,
 				53B70942225C433100D22F69 /* human1.png */,
 				53B70943225C433100D22F69 /* human2.png */,
@@ -219,6 +221,7 @@
 		53B70968225C496C00D22F69 /* Scene */ = {
 			isa = PBXGroup;
 			children = (
+				53B70985225C7F9900D22F69 /* GameConfig.swift */,
 				53B70969225C496C00D22F69 /* Defined.swift */,
 				53B7096A225C496C00D22F69 /* StickHeroGameScene.swift */,
 				53B7096B225C496C00D22F69 /* Tools.swift */,
@@ -343,6 +346,7 @@
 			files = (
 				53B70983225C7CC800D22F69 /* StarExplosion.sks in Resources */,
 				53B70980225C7CBC00D22F69 /* bg_country.mp3 in Resources */,
+				5322AD19225F7F840063D6BF /* again.png in Resources */,
 				53B70982225C7CC300D22F69 /* dead.wav in Resources */,
 				53B70981225C7CC100D22F69 /* touch_mid.wav in Resources */,
 				53B70988225C856A00D22F69 /* stick_background.png in Resources */,
@@ -350,6 +354,7 @@
 				53B7097D225C7CB600D22F69 /* victory.wav in Resources */,
 				53B7091D225C33AC00D22F69 /* LaunchScreen.storyboard in Resources */,
 				53B7091A225C33AC00D22F69 /* Assets.xcassets in Resources */,
+				5322AD17225F7F260063D6BF /* button_retry_up.png in Resources */,
 				53B70984225C7CCA00D22F69 /* starParticle.png in Resources */,
 				53B7097C225C7CB300D22F69 /* stick_grow_loop.wav in Resources */,
 				53B70918225C33AB00D22F69 /* Main.storyboard in Resources */,
@@ -429,7 +434,6 @@
 			buildActionMask = 2147483647;
 			files = (
 				53B70970225C4B6600D22F69 /* ViewController.swift in Sources */,
-				53B70915225C33AB00D22F69 /* GameViewController.swift in Sources */,
 				53B70986225C7F9900D22F69 /* GameConfig.swift in Sources */,
 				53B7096C225C498E00D22F69 /* StickHeroGameScene.swift in Sources */,
 				53B70913225C33AA00D22F69 /* AppDelegate.swift in Sources */,
