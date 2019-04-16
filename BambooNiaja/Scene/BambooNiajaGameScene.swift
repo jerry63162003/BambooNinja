@@ -1,5 +1,5 @@
 //
-//  StickHeroGameScene.swift
+//  BambooNiajaGameScene.swift
 //  BambooNiaja
 //
 //  Created by user04 on 2019/4/9.
@@ -7,8 +7,9 @@
 //
 
 import SpriteKit
+import AVFoundation
 
-class StickHeroGameScene: SKScene, SKPhysicsContactDelegate {
+class BambooNiajaGameScene: SKScene, SKPhysicsContactDelegate {
     struct GAP {
         static let XGAP:CGFloat = 20
         static let YGAP:CGFloat = 4
@@ -18,8 +19,9 @@ class StickHeroGameScene: SKScene, SKPhysicsContactDelegate {
         willSet {
             if (newValue) {
                 checkHighScoreAndStore()
-                let gameOverLayer = childNode(withName: StickHeroGameSceneChildName.GameOverLayerName.rawValue) as SKNode?
+                let gameOverLayer = childNode(withName: BambooNiajaGameSceneChildName.GameOverLayerName.rawValue) as SKNode?
                 gameOverLayer?.run(SKAction.moveDistance(CGVector(dx: 0, dy: 100), fadeInWithDuration: 0.2))
+                
             }
         }
     }
@@ -30,7 +32,7 @@ class StickHeroGameScene: SKScene, SKPhysicsContactDelegate {
     let gravity:CGFloat = -100.0
     let StackGapMinWidth:Int = 80
     let HeroSpeed:CGFloat = 760
-    let StoreScoreName = "com.stickHero.score"
+    let StoreScoreName = "com.BambooNiaja.score"
     let isGameMusic = GameConfig().isGameMusic
     let isGameSound = GameConfig().isGameSound
     
@@ -40,18 +42,19 @@ class StickHeroGameScene: SKScene, SKPhysicsContactDelegate {
     var rightStack:SKShapeNode?
     var hero: SKSpriteNode!
     var stick: SKSpriteNode!
+    var musicPlayer:AVAudioPlayer!
     
     var nextLeftStartX:CGFloat = 0
     var stickHeight:CGFloat = 0
     
     var score:Int = 0 {
         willSet {
-            let scoreBand = childNode(withName: StickHeroGameSceneChildName.ScoreName.rawValue) as? SKLabelNode
+            let scoreBand = childNode(withName: BambooNiajaGameSceneChildName.ScoreName.rawValue) as? SKLabelNode
             scoreBand?.text = "\(newValue)"
             scoreBand?.run(SKAction.sequence([SKAction.scale(to: 1.5, duration: 0.1), SKAction.scale(to: 1, duration: 0.1)]))
             
             if (newValue == 1) {
-                let tip = childNode(withName: StickHeroGameSceneChildName.TipName.rawValue) as? SKLabelNode
+                let tip = childNode(withName: BambooNiajaGameSceneChildName.TipName.rawValue) as? SKLabelNode
                 tip?.run(SKAction.fadeAlpha(to: 0, duration: 0.4))
             }
         }
@@ -81,33 +84,54 @@ class StickHeroGameScene: SKScene, SKPhysicsContactDelegate {
         super.init(size: size)
         anchorPoint = CGPoint(x: 0.5, y: 0.5)
         physicsWorld.contactDelegate = self
+        if isGameMusic == true {
+            musicPlayer = setupAudioPlayerWithFile("bg_country", type: "mp3")
+            musicPlayer.numberOfLoops = -1
+            musicPlayer.play()
+        }
     }
 
+    func setupAudioPlayerWithFile(_ file:NSString, type:NSString) -> AVAudioPlayer  {
+        let url = Bundle.main.url(forResource: file as String, withExtension: type as String)
+        var audioPlayer:AVAudioPlayer?
+        
+        do {
+            try audioPlayer = AVAudioPlayer(contentsOf: url!)
+        } catch {
+            print("NO AUDIO PLAYER")
+        }
+        
+        return audioPlayer!
+    }
+    
     override func didMove(to view: SKView) {
         start()
     }
     
     override func touchesBegan(_ touches: Set<UITouch>, with event: UIEvent?) {
         guard !gameOver else {
-            let gameOverLayer = childNode(withName: StickHeroGameSceneChildName.GameOverLayerName.rawValue) as SKNode?
+            let gameOverLayer = childNode(withName: BambooNiajaGameSceneChildName.GameOverLayerName.rawValue) as SKNode?
 
             let location = touches.first?.location(in: gameOverLayer!)
             let retry = gameOverLayer!.atPoint(location!)
             let goToMainPage = gameOverLayer!.atPoint(location!)
             
-            if (retry.name == StickHeroGameSceneChildName.RetryButtonName.rawValue) {
+            if (retry.name == BambooNiajaGameSceneChildName.RetryButtonName.rawValue) {
                 retry.run(SKAction.sequence([SKAction.setTexture(SKTexture(imageNamed: "button_retry_up"), resize: false), SKAction.wait(forDuration: 0.3)]), completion: {[unowned self] () -> Void in
                     self.restart()
                 })
             }
             
-            if (goToMainPage.name == StickHeroGameSceneChildName.GoToMainPage.rawValue) {
+            if (goToMainPage.name == BambooNiajaGameSceneChildName.GoToMainPage.rawValue) {
                 leftStack?.removeFromParent()
                 rightStack?.removeFromParent()
                 hero.removeFromParent()
                 stick.removeFromParent()
                 self.removeAllActions()
                 self.removeAllChildren()
+                if isGameMusic == true {
+                    musicPlayer.stop()
+                }
                 var topController:UIViewController = (UIApplication.shared.keyWindow?.rootViewController)!
                 let vc = ViewController()
                 
@@ -125,16 +149,16 @@ class StickHeroGameScene: SKScene, SKPhysicsContactDelegate {
             isBegin = true
             
             let stick = loadStick()
-            hero = childNode(withName: StickHeroGameSceneChildName.HeroName.rawValue) as? SKSpriteNode
+            hero = childNode(withName: BambooNiajaGameSceneChildName.HeroName.rawValue) as? SKSpriteNode
      
             let action = SKAction.resize(toHeight: CGFloat(DefinedScreenHeight - StackHeight), duration: 1.5)
-            stick.run(action, withKey:StickHeroGameSceneActionKey.StickGrowAction.rawValue)
+            stick.run(action, withKey:BambooNiajaGameSceneActionKey.BambooGrowAction.rawValue)
             
             let scaleAction = SKAction.sequence([SKAction.scaleY(to: 0.9, duration: 0.05), SKAction.scaleY(to: 1, duration: 0.05)])
             if isGameMusic == true {
-                let loopAction = SKAction.group([SKAction.playSoundFileNamed(StickHeroGameSceneEffectAudioName.StickGrowAudioName.rawValue, waitForCompletion: true)])
-                stick.run(SKAction.repeatForever(loopAction), withKey: StickHeroGameSceneActionKey.StickGrowAudioAction.rawValue)
-                hero.run(SKAction.repeatForever(scaleAction), withKey: StickHeroGameSceneActionKey.HeroScaleAction.rawValue)
+                let loopAction = SKAction.group([SKAction.playSoundFileNamed(BambooNiajaGameSceneEffectAudioName.BambooGrowAudioName.rawValue, waitForCompletion: true)])
+                stick.run(SKAction.repeatForever(loopAction), withKey: BambooNiajaGameSceneActionKey.BambooGrowAudioAction.rawValue)
+                hero.run(SKAction.repeatForever(scaleAction), withKey: BambooNiajaGameSceneActionKey.HeroScaleAction.rawValue)
             }
             return
         }
@@ -145,16 +169,16 @@ class StickHeroGameScene: SKScene, SKPhysicsContactDelegate {
         if isBegin && !isEnd {
             isEnd  = true
             
-            hero = childNode(withName: StickHeroGameSceneChildName.HeroName.rawValue) as? SKSpriteNode
-            hero.removeAction(forKey: StickHeroGameSceneActionKey.HeroScaleAction.rawValue)
+            hero = childNode(withName: BambooNiajaGameSceneChildName.HeroName.rawValue) as? SKSpriteNode
+            hero.removeAction(forKey: BambooNiajaGameSceneActionKey.HeroScaleAction.rawValue)
             hero.run(SKAction.scaleY(to: 1, duration: 0.04))
             
-            stick = childNode(withName: StickHeroGameSceneChildName.StickName.rawValue) as? SKSpriteNode
-            stick.removeAction(forKey: StickHeroGameSceneActionKey.StickGrowAction.rawValue)
-            stick.removeAction(forKey: StickHeroGameSceneActionKey.StickGrowAudioAction.rawValue)
+            stick = childNode(withName: BambooNiajaGameSceneChildName.BambooName.rawValue) as? SKSpriteNode
+            stick.removeAction(forKey: BambooNiajaGameSceneActionKey.BambooGrowAction.rawValue)
+            stick.removeAction(forKey: BambooNiajaGameSceneActionKey.BambooGrowAudioAction.rawValue)
             
             if isGameSound == true {
-                stick.run(SKAction.playSoundFileNamed(StickHeroGameSceneEffectAudioName.StickGrowOverAudioName.rawValue, waitForCompletion: false))
+                stick.run(SKAction.playSoundFileNamed(BambooNiajaGameSceneEffectAudioName.BambooGrowOverAudioName.rawValue, waitForCompletion: false))
             }
             
             stickHeight = stick.size.height;
@@ -162,7 +186,7 @@ class StickHeroGameScene: SKScene, SKPhysicsContactDelegate {
             let action = SKAction.rotate(toAngle: CGFloat(-Double.pi / 2), duration: 0.4, shortestUnitArc: true)
             var playFall = SKAction()
             if isGameSound == true {
-                playFall = SKAction.playSoundFileNamed(StickHeroGameSceneEffectAudioName.StickFallAudioName.rawValue, waitForCompletion: false)
+                playFall = SKAction.playSoundFileNamed(BambooNiajaGameSceneEffectAudioName.BambooFallAudioName.rawValue, waitForCompletion: false)
             }
             
             stick.run(SKAction.sequence([SKAction.wait(forDuration: 0.2), action, playFall]), completion: {[unowned self] () -> Void in
@@ -201,7 +225,7 @@ class StickHeroGameScene: SKScene, SKPhysicsContactDelegate {
     }
     
     fileprivate func checkPass() -> Bool {
-        stick = childNode(withName: StickHeroGameSceneChildName.StickName.rawValue) as? SKSpriteNode
+        stick = childNode(withName: BambooNiajaGameSceneChildName.BambooName.rawValue) as? SKSpriteNode
 
         let rightPoint = DefinedScreenWidth / 2 + stick.position.x + self.stickHeight
         
@@ -219,15 +243,15 @@ class StickHeroGameScene: SKScene, SKPhysicsContactDelegate {
     }
     
     fileprivate func checkTouchMidStack() {
-        stick = childNode(withName: StickHeroGameSceneChildName.StickName.rawValue) as? SKSpriteNode
-        let stackMid = rightStack!.childNode(withName: StickHeroGameSceneChildName.StackMidName.rawValue) as! SKShapeNode
+        stick = childNode(withName: BambooNiajaGameSceneChildName.BambooName.rawValue) as? SKSpriteNode
+        let stackMid = rightStack!.childNode(withName: BambooNiajaGameSceneChildName.StackMidName.rawValue) as! SKShapeNode
         
         let newPoint = stackMid.convert(CGPoint(x: -10, y: 10), to: self)
         
         if ((stick.position.x + self.stickHeight) >= newPoint.x  && (stick.position.x + self.stickHeight) <= newPoint.x + 20) {
             loadPerfect()
             if isGameSound == true {
-                self.run(SKAction.playSoundFileNamed(StickHeroGameSceneEffectAudioName.StickTouchMidAudioName.rawValue, waitForCompletion: false))
+                self.run(SKAction.playSoundFileNamed(BambooNiajaGameSceneEffectAudioName.BambooTouchMidAudioName.rawValue, waitForCompletion: false))
             }
             score += 1
         }
@@ -236,7 +260,7 @@ class StickHeroGameScene: SKScene, SKPhysicsContactDelegate {
     
     fileprivate func removeMidTouch(_ animate:Bool, left:Bool) {
         let stack = left ? leftStack : rightStack
-        let mid = stack!.childNode(withName: StickHeroGameSceneChildName.StackMidName.rawValue) as! SKShapeNode
+        let mid = stack!.childNode(withName: BambooNiajaGameSceneChildName.StackMidName.rawValue) as! SKShapeNode
         if (animate) {
             mid.run(SKAction.fadeAlpha(to: 0, duration: 0.3))
         }
@@ -246,10 +270,10 @@ class StickHeroGameScene: SKScene, SKPhysicsContactDelegate {
     }
     
     fileprivate func heroGo(_ pass:Bool) {
-        hero = childNode(withName: StickHeroGameSceneChildName.HeroName.rawValue) as? SKSpriteNode
+        hero = childNode(withName: BambooNiajaGameSceneChildName.HeroName.rawValue) as? SKSpriteNode
         
         guard pass else {
-            stick = childNode(withName: StickHeroGameSceneChildName.StickName.rawValue) as? SKSpriteNode
+            stick = childNode(withName: BambooNiajaGameSceneChildName.BambooName.rawValue) as? SKSpriteNode
             
             let dis:CGFloat = stick.position.x + self.stickHeight
             
@@ -258,15 +282,15 @@ class StickHeroGameScene: SKScene, SKPhysicsContactDelegate {
 
             let move = SKAction.moveTo(x: dis, duration: TimeInterval(abs(disGap / HeroSpeed)))
 
-            hero.run(walkAction, withKey: StickHeroGameSceneActionKey.WalkAction.rawValue)
+            hero.run(walkAction, withKey: BambooNiajaGameSceneActionKey.WalkAction.rawValue)
             hero.run(move, completion: {[unowned self] () -> Void in
                 self.stick.run(SKAction.rotate(toAngle: CGFloat(-Double.pi), duration: 0.4))
                 
                 self.hero.physicsBody!.affectedByGravity = true
                 if self.isGameSound == true {
-                    self.hero.run(SKAction.playSoundFileNamed(StickHeroGameSceneEffectAudioName.DeadAudioName.rawValue, waitForCompletion: false))
+                    self.hero.run(SKAction.playSoundFileNamed(BambooNiajaGameSceneEffectAudioName.DeadAudioName.rawValue, waitForCompletion: false))
                 }
-                self.hero.removeAction(forKey: StickHeroGameSceneActionKey.WalkAction.rawValue)
+                self.hero.removeAction(forKey: BambooNiajaGameSceneActionKey.WalkAction.rawValue)
                 self.run(SKAction.wait(forDuration: 0.5), completion: {[unowned self] () -> Void in
                     self.gameOver = true
                 })
@@ -282,13 +306,13 @@ class StickHeroGameScene: SKScene, SKPhysicsContactDelegate {
         
         let move = SKAction.moveTo(x: dis, duration: TimeInterval(abs(disGap / HeroSpeed)))
  
-        hero.run(walkAction, withKey: StickHeroGameSceneActionKey.WalkAction.rawValue)
+        hero.run(walkAction, withKey: BambooNiajaGameSceneActionKey.WalkAction.rawValue)
         hero.run(move, completion: { [unowned self]() -> Void in
             self.score += 1
             if self.isGameSound == true {
-                self.hero.run(SKAction.playSoundFileNamed(StickHeroGameSceneEffectAudioName.VictoryAudioName.rawValue, waitForCompletion: false))
+                self.hero.run(SKAction.playSoundFileNamed(BambooNiajaGameSceneEffectAudioName.VictoryAudioName.rawValue, waitForCompletion: false))
             }
-            self.hero.removeAction(forKey: StickHeroGameSceneActionKey.WalkAction.rawValue)
+            self.hero.removeAction(forKey: BambooNiajaGameSceneActionKey.WalkAction.rawValue)
             self.moveStackAndCreateNew()
         }) 
     }
@@ -305,7 +329,7 @@ class StickHeroGameScene: SKScene, SKPhysicsContactDelegate {
     
     fileprivate func showHighScore() {
         if isGameSound == true {
-            self.run(SKAction.playSoundFileNamed(StickHeroGameSceneEffectAudioName.HighScoreAudioName.rawValue, waitForCompletion: false))
+            self.run(SKAction.playSoundFileNamed(BambooNiajaGameSceneEffectAudioName.HighScoreAudioName.rawValue, waitForCompletion: false))
         }
         
         let wait = SKAction.wait(forDuration: 0.4)
@@ -319,8 +343,8 @@ class StickHeroGameScene: SKScene, SKPhysicsContactDelegate {
         let idleShrink = SKAction.scale(to: 1, duration: 0.4)
         let pulsate = SKAction.repeatForever(SKAction.sequence([idleGrow, idleShrink]))
         
-        let gameOverLayer = childNode(withName: StickHeroGameSceneChildName.GameOverLayerName.rawValue) as SKNode?
-        let highScoreLabel = gameOverLayer?.childNode(withName: StickHeroGameSceneChildName.HighScoreName.rawValue) as SKNode?
+        let gameOverLayer = childNode(withName: BambooNiajaGameSceneChildName.GameOverLayerName.rawValue) as SKNode?
+        let highScoreLabel = gameOverLayer?.childNode(withName: BambooNiajaGameSceneChildName.HighScoreName.rawValue) as SKNode?
         highScoreLabel?.run(SKAction.sequence([wait, explosion, grow, shrink]), completion: { () -> Void in
             highScoreLabel?.run(pulsate)
         })
@@ -331,8 +355,8 @@ class StickHeroGameScene: SKScene, SKPhysicsContactDelegate {
         rightStack?.run(action)
         self.removeMidTouch(true, left:false)
 
-        hero = childNode(withName: StickHeroGameSceneChildName.HeroName.rawValue) as? SKSpriteNode
-        stick = childNode(withName: StickHeroGameSceneChildName.StickName.rawValue) as? SKSpriteNode
+        hero = childNode(withName: BambooNiajaGameSceneChildName.HeroName.rawValue) as? SKSpriteNode
+        stick = childNode(withName: BambooNiajaGameSceneChildName.BambooName.rawValue) as? SKSpriteNode
         
         hero.run(action)
         stick.run(SKAction.group([SKAction.move(by: CGVector(dx: -DefinedScreenWidth, dy: 0), duration: 0.5), SKAction.fadeAlpha(to: 0, duration: 0.3)]), completion: { () -> Void in
@@ -356,13 +380,13 @@ class StickHeroGameScene: SKScene, SKPhysicsContactDelegate {
 }
 
 //MARK: - load node
-private extension StickHeroGameScene {
+private extension BambooNiajaGameScene {
     func loadBackground() {
         guard let _ = childNode(withName: "background") as! SKSpriteNode? else {
             let texture = SKTexture(image: UIImage(named: "stick_background.png")!)
             let node = SKSpriteNode(texture: texture)
             node.size = texture.size()
-            node.zPosition = StickHeroGameSceneZposition.backgroundZposition.rawValue
+            node.zPosition = BambooNiajaGameSceneZposition.backgroundZposition.rawValue
             self.physicsWorld.gravity = CGVector(dx: 0, dy: gravity)
             
             addChild(node)
@@ -372,12 +396,12 @@ private extension StickHeroGameScene {
     
     func loadScore() {
         let scoreBand = SKLabelNode(fontNamed: "Arial")
-        scoreBand.name = StickHeroGameSceneChildName.ScoreName.rawValue
+        scoreBand.name = BambooNiajaGameSceneChildName.ScoreName.rawValue
         scoreBand.text = "0"
         scoreBand.position = CGPoint(x: 0, y: DefinedScreenHeight / 2 - 200)
         scoreBand.fontColor = SKColor.white
         scoreBand.fontSize = 100
-        scoreBand.zPosition = StickHeroGameSceneZposition.scoreZposition.rawValue
+        scoreBand.zPosition = BambooNiajaGameSceneZposition.scoreZposition.rawValue
         scoreBand.horizontalAlignmentMode = .center
         
         addChild(scoreBand)
@@ -385,7 +409,7 @@ private extension StickHeroGameScene {
     
     func loadScoreBackground() {
         let back = SKShapeNode(rect: CGRect(x: 0-120, y: 1024-200-30, width: 240, height: 140), cornerRadius: 20)
-        back.zPosition = StickHeroGameSceneZposition.scoreBackgroundZposition.rawValue
+        back.zPosition = BambooNiajaGameSceneZposition.scoreBackgroundZposition.rawValue
         back.fillColor = SKColor.black.withAlphaComponent(0.3)
         back.strokeColor = SKColor.black.withAlphaComponent(0.3)
         addChild(back)
@@ -393,11 +417,11 @@ private extension StickHeroGameScene {
     
     func loadHero() {
         hero = SKSpriteNode(imageNamed: "human1")
-        hero.name = StickHeroGameSceneChildName.HeroName.rawValue
+        hero.name = BambooNiajaGameSceneChildName.HeroName.rawValue
         let x:CGFloat = nextLeftStartX - DefinedScreenWidth / 2 - hero.size.width / 2 - GAP.XGAP
         let y:CGFloat = StackHeight + hero.size.height / 2 - DefinedScreenHeight / 2 - GAP.YGAP
         hero.position = CGPoint(x: x, y: y)
-        hero.zPosition = StickHeroGameSceneZposition.heroZposition.rawValue
+        hero.zPosition = BambooNiajaGameSceneZposition.heroZposition.rawValue
         hero.physicsBody = SKPhysicsBody(rectangleOf: CGSize(width: 16, height: 18))
         hero.physicsBody?.affectedByGravity = false
         hero.physicsBody?.allowsRotation = false
@@ -407,12 +431,12 @@ private extension StickHeroGameScene {
     
     func loadTip() {
         let tip = SKLabelNode(fontNamed: "HelveticaNeue-Bold")
-        tip.name = StickHeroGameSceneChildName.TipName.rawValue
+        tip.name = BambooNiajaGameSceneChildName.TipName.rawValue
         tip.text = "将手放在屏幕使竿变长"
         tip.position = CGPoint(x: 0, y: DefinedScreenHeight / 2 - 350)
         tip.fontColor = SKColor.black
         tip.fontSize = 52
-        tip.zPosition = StickHeroGameSceneZposition.tipZposition.rawValue
+        tip.zPosition = BambooNiajaGameSceneZposition.tipZposition.rawValue
         tip.horizontalAlignmentMode = .center
     
         addChild(tip)
@@ -420,20 +444,20 @@ private extension StickHeroGameScene {
     
     func loadPerfect() {
         defer {
-            let perfect = childNode(withName: StickHeroGameSceneChildName.PerfectName.rawValue) as! SKLabelNode?
+            let perfect = childNode(withName: BambooNiajaGameSceneChildName.PerfectName.rawValue) as! SKLabelNode?
             let sequence = SKAction.sequence([SKAction.fadeAlpha(to: 1, duration: 0.3), SKAction.fadeAlpha(to: 0, duration: 0.3)])
             let scale = SKAction.sequence([SKAction.scale(to: 1.4, duration: 0.3), SKAction.scale(to: 1, duration: 0.3)])
             perfect!.run(SKAction.group([sequence, scale]))
         }
 
-        guard let _ = childNode(withName: StickHeroGameSceneChildName.PerfectName.rawValue) as! SKLabelNode? else {
+        guard let _ = childNode(withName: BambooNiajaGameSceneChildName.PerfectName.rawValue) as! SKLabelNode? else {
             let perfect = SKLabelNode(fontNamed: "Arial")
             perfect.text = "Perfect +1"
-            perfect.name = StickHeroGameSceneChildName.PerfectName.rawValue
+            perfect.name = BambooNiajaGameSceneChildName.PerfectName.rawValue
             perfect.position = CGPoint(x: 0, y: -100)
             perfect.fontColor = SKColor.black
             perfect.fontSize = 50
-            perfect.zPosition = StickHeroGameSceneZposition.perfectZposition.rawValue
+            perfect.zPosition = BambooNiajaGameSceneZposition.perfectZposition.rawValue
             perfect.horizontalAlignmentMode = .center
             perfect.alpha = 0
             
@@ -445,11 +469,11 @@ private extension StickHeroGameScene {
     }
     
     func loadStick() -> SKSpriteNode {
-        hero = childNode(withName: StickHeroGameSceneChildName.HeroName.rawValue) as? SKSpriteNode
+        hero = childNode(withName: BambooNiajaGameSceneChildName.HeroName.rawValue) as? SKSpriteNode
 
         stick = SKSpriteNode(color: SKColor.black, size: CGSize(width: 12, height: 1))
-        stick.zPosition = StickHeroGameSceneZposition.stickZposition.rawValue
-        stick.name = StickHeroGameSceneChildName.StickName.rawValue
+        stick.zPosition = BambooNiajaGameSceneZposition.bambooZposition.rawValue
+        stick.name = BambooNiajaGameSceneChildName.BambooName.rawValue
         stick.anchorPoint = CGPoint(x: 0.5, y: 0);
         stick.position = CGPoint(x: hero.position.x + hero.size.width / 2 + 18, y: hero.position.y - hero.size.height / 2)
         addChild(stick)
@@ -465,8 +489,8 @@ private extension StickHeroGameScene {
         let stack = SKShapeNode(rectOf: CGSize(width: width, height: height))
         stack.fillColor = SKColor.black
         stack.strokeColor = SKColor.black
-        stack.zPosition = StickHeroGameSceneZposition.stackZposition.rawValue
-        stack.name = StickHeroGameSceneChildName.StackName.rawValue
+        stack.zPosition = BambooNiajaGameSceneZposition.stackZposition.rawValue
+        stack.name = BambooNiajaGameSceneChildName.StackName.rawValue
  
         if (animate) {
             stack.position = CGPoint(x: DefinedScreenWidth / 2, y: -DefinedScreenHeight / 2 + height / 2)
@@ -485,8 +509,8 @@ private extension StickHeroGameScene {
         let mid = SKShapeNode(rectOf: CGSize(width: 20, height: 20))
         mid.fillColor = SKColor.red
         mid.strokeColor = SKColor.red
-        mid.zPosition = StickHeroGameSceneZposition.stackMidZposition.rawValue
-        mid.name = StickHeroGameSceneChildName.StackMidName.rawValue
+        mid.zPosition = BambooNiajaGameSceneZposition.stackMidZposition.rawValue
+        mid.name = BambooNiajaGameSceneChildName.StackMidName.rawValue
         mid.position = CGPoint(x: 0, y: height / 2 - 20 / 2)
         stack.addChild(mid)
         
@@ -498,8 +522,8 @@ private extension StickHeroGameScene {
     func loadGameOverLayer() {
         let node = SKNode()
         node.alpha = 0
-        node.name = StickHeroGameSceneChildName.GameOverLayerName.rawValue
-        node.zPosition = StickHeroGameSceneZposition.gameOverZposition.rawValue
+        node.name = BambooNiajaGameSceneChildName.GameOverLayerName.rawValue
+        node.zPosition = BambooNiajaGameSceneZposition.gameOverZposition.rawValue
         addChild(node)
         
         let label = SKLabelNode(fontNamed: "HelveticaNeue-Bold")
@@ -511,12 +535,12 @@ private extension StickHeroGameScene {
         node.addChild(label)
         
         let retry = SKSpriteNode(imageNamed: "button_retry_up")
-        retry.name = StickHeroGameSceneChildName.RetryButtonName.rawValue
+        retry.name = BambooNiajaGameSceneChildName.RetryButtonName.rawValue
         retry.position = CGPoint(x: 0, y: -200)
         node.addChild(retry)
         
         let goToMainPage = SKSpriteNode(imageNamed: "again")
-        goToMainPage.name = StickHeroGameSceneChildName.GoToMainPage.rawValue
+        goToMainPage.name = BambooNiajaGameSceneChildName.GoToMainPage.rawValue
         goToMainPage.position = CGPoint(x: 0, y: 0)
         node.addChild(goToMainPage)
         
@@ -524,7 +548,7 @@ private extension StickHeroGameScene {
         highScore.text = "Highscore!"
         highScore.fontColor = UIColor.white
         highScore.fontSize = 50
-        highScore.name = StickHeroGameSceneChildName.HighScoreName.rawValue
+        highScore.name = BambooNiajaGameSceneChildName.HighScoreName.rawValue
         highScore.position = CGPoint(x: 0, y: 300)
         highScore.horizontalAlignmentMode = .center
         highScore.setScale(0)
@@ -535,7 +559,7 @@ private extension StickHeroGameScene {
     func starEmitterActionAtPosition(_ position: CGPoint) -> SKAction {
         let emitter = SKEmitterNode(fileNamed: "StarExplosion")
         emitter?.position = position
-        emitter?.zPosition = StickHeroGameSceneZposition.emitterZposition.rawValue
+        emitter?.zPosition = BambooNiajaGameSceneZposition.emitterZposition.rawValue
         emitter?.alpha = 0.6
         addChild((emitter)!)
         

@@ -9,14 +9,13 @@
 import UIKit
 import SnapKit
 import SpriteKit
-import AVFoundation
+
 
 class ViewController: UIViewController {
 
     let gameConfig = GameConfig()
-    let StoreScoreName = "com.stickHero.score"
-    var musicPlayer:AVAudioPlayer!
-    var scene:StickHeroGameScene!
+    let StoreScoreName = "com.BambooNiaja.score"
+    var scene:BambooNiajaGameScene!
     
     lazy var settingView: UIView = {
         let bgView = UIView()
@@ -151,11 +150,6 @@ class ViewController: UIViewController {
     override func viewWillAppear(_ animated: Bool) {
         super.viewWillAppear(animated)
         
-        if gameConfig.isGameMusic == true {
-            musicPlayer = setupAudioPlayerWithFile("bg_country", type: "mp3")
-            musicPlayer.numberOfLoops = -1
-            musicPlayer.play()
-        }
     }
     
     override func didReceiveMemoryWarning() {
@@ -176,9 +170,9 @@ class ViewController: UIViewController {
 
         if sender.tag == 13 {
             if iPhoneNormalWidth {
-                scene = StickHeroGameScene(size:CGSize(width: DefinedScreenWidth, height: DefinedScreenHeight))
+                scene = BambooNiajaGameScene(size:CGSize(width: DefinedScreenWidth, height: DefinedScreenHeight))
             } else if iPhoneLargeWidth {
-                scene = StickHeroGameScene(size:CGSize(width: DefinedScreenLargeIphoneWidth, height: DefinedScreenHeight))
+                scene = BambooNiajaGameScene(size:CGSize(width: DefinedScreenLargeIphoneWidth, height: DefinedScreenHeight))
             }
             self.view = SKView()
             let skView = self.view as! SKView
@@ -277,20 +271,7 @@ class ViewController: UIViewController {
             make.left.right.top.bottom.equalTo(view)
         }
     }
-    
-    func setupAudioPlayerWithFile(_ file:NSString, type:NSString) -> AVAudioPlayer  {
-        let url = Bundle.main.url(forResource: file as String, withExtension: type as String)
-        var audioPlayer:AVAudioPlayer?
-        
-        do {
-            try audioPlayer = AVAudioPlayer(contentsOf: url!)
-        } catch {
-            print("NO AUDIO PLAYER")
-        }
-        
-        return audioPlayer!
-    }
-    
+
     override var shouldAutorotate : Bool {
         return true
     }
@@ -302,6 +283,6 @@ class ViewController: UIViewController {
     override var prefersStatusBarHidden : Bool {
         return true
     }
-
+    
 }
 
